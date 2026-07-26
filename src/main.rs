@@ -1,11 +1,11 @@
-use polars::{df, frame::DataFrame};
+use polars::error::PolarsError;
 
-fn main() {
-    let df: DataFrame = df!(
-        "nome" => ["Dragon Ball", "Naruto", "One Piece", "CDZ"],
-        "score" => [9.0, 8.5, 8.0, 7.5]
-    )
-    .unwrap();
+mod anime_data;
 
-    println!("{:?}", df);
+fn main() -> Result<(), PolarsError> {
+    println!("Carregando e filtrando notas...");
+    let df = anime_data::load_and_filter_notes().unwrap();
+    anime_data::filter_first_five_result(&df)?;
+
+    Ok(())
 }
