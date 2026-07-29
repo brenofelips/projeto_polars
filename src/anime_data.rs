@@ -5,7 +5,7 @@ use polars::{
     error::PolarsError,
     frame::DataFrame,
     io::SerReader,
-    prelude::{CsvReader, IntoLazy, SortMultipleOptions, col, lit, when},
+    prelude::{CsvReader, IntoLazy, JoinArgs, SortMultipleOptions, col, lit, when},
 };
 
 #[allow(dead_code)]
@@ -27,6 +27,25 @@ pub fn load_and_filter_notes() -> Result<DataFrame, PolarsError> {
     let filtered_df = df.lazy().filter(col("Score").gt(5)).collect()?; // faz um gt (greater than)
 
     Ok(filtered_df)
+}
+
+pub fn merge_dataframes(df: &DataFrame) -> Result<DataFrame, PolarsError> {
+    let animes = df.clone().lazy();
+    let file_path = "dados/animelist2.csv";
+    let file = File::open(file_path)?;
+
+    let ratings = CsvReader::new(file).finish()?;
+    let joined = animes
+        .lazy()
+        .join(
+            ratings.lazy(),
+            [col("ID")],
+            [col("anime_id")],
+            JoinArgs::default(), // define os argumentos padrão do Join
+        )
+        .collect()?;
+
+    Ok(joined)
 }
 
 pub fn filter_first_five_result(df: &DataFrame) -> Result<(), PolarsError> {

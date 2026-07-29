@@ -16,5 +16,8 @@ fn main() -> Result<(), PolarsError> {
     let df_aggregation = anime_data::aggregation(&df_result)?;
     println!("Agregação: {}", df_aggregation);
 
+    let df_joined = anime_data::merge_dataframes(&df_result)?;
+    println!("Join: {}", df_joined);
+
     Ok(())
 }
