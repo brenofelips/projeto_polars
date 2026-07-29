@@ -5,7 +5,7 @@ use polars::{
     error::PolarsError,
     frame::DataFrame,
     io::SerReader,
-    prelude::{CsvReader, IntoLazy, col, lit, when},
+    prelude::{CsvReader, IntoLazy, SortMultipleOptions, col, lit, when},
 };
 
 #[allow(dead_code)]
@@ -64,4 +64,27 @@ pub fn operation_columns(df: &DataFrame) -> Result<DataFrame, PolarsError> {
         .rename(["MAL_ID", "Name"], ["ID", "Título"], false)
         .collect()?;
     Ok(df)
+}
+
+pub fn advanced_filter(df: &DataFrame) -> Result<DataFrame, PolarsError> {
+    let df = df.clone().lazy();
+
+    let df_filtered = df
+        .filter(col("Genres").str().contains(lit("Action"), false))
+        .select([col("Título"), col("Genres"), col("Score")])
+        .collect()?;
+
+    let best_ten = df_filtered
+        .lazy()
+        .sort_by_exprs(
+            vec![col("Score")],
+            SortMultipleOptions {
+                descending: vec![true],
+                ..Default::default() // define as demais opções com os valores padrão
+            },
+        )
+        .limit(10) // define o limite de 10 resultados
+        .collect()?;
+
+    Ok(best_ten)
 }
