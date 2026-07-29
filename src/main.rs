@@ -13,5 +13,8 @@ fn main() -> Result<(), PolarsError> {
     let df_best_ten = anime_data::advanced_filter(&df_result)?;
     println!("Melhores 10: {}", df_best_ten);
 
+    let df_aggregation = anime_data::aggregation(&df_result)?;
+    println!("Agregação: {}", df_aggregation);
+
     Ok(())
 }

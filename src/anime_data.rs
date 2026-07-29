@@ -88,3 +88,16 @@ pub fn advanced_filter(df: &DataFrame) -> Result<DataFrame, PolarsError> {
 
     Ok(best_ten)
 }
+
+pub fn aggregation(df: &DataFrame) -> Result<DataFrame, PolarsError> {
+    let df = df
+        .clone()
+        .lazy()
+        .group_by([col("Categorias")])
+        .agg([
+            col("ID").count().alias("Quantidade"),
+            col("Score").mean().alias("Média"),
+        ])
+        .collect()?;
+    Ok(df)
+}
