@@ -7,5 +7,8 @@ fn main() -> Result<(), PolarsError> {
     let df = anime_data::load_and_filter_notes().unwrap();
     anime_data::filter_first_five_result(&df)?;
 
+    let df_result = anime_data::operation_columns(&df);
+    println!("Resultado: {:?}", df_result);
+
     Ok(())
 }

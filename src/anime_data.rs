@@ -5,7 +5,7 @@ use polars::{
     error::PolarsError,
     frame::DataFrame,
     io::SerReader,
-    prelude::{CsvReader, IntoLazy, col},
+    prelude::{CsvReader, IntoLazy, col, lit, when},
 };
 
 #[allow(dead_code)]
@@ -24,7 +24,7 @@ pub fn load_and_filter_notes() -> Result<DataFrame, PolarsError> {
     let file = File::open(file_path)?;
 
     let df = CsvReader::new(file).finish()?;
-    let filtered_df = df.lazy().filter(col("Score").gt(5)).collect()?;
+    let filtered_df = df.lazy().filter(col("Score").gt(5)).collect()?; // faz um gt (greater than)
 
     Ok(filtered_df)
 }
@@ -43,4 +43,25 @@ pub fn filter_first_five_result(df: &DataFrame) -> Result<(), PolarsError> {
     println!("Média das notas de animes: {:.2}", media); // exibe até o segundo valor depois da vírgula
 
     Ok(())
+}
+
+pub fn operation_columns(df: &DataFrame) -> Result<DataFrame, PolarsError> {
+    let df = df
+        .clone()
+        .lazy()
+        .with_column(
+            when(col("Score").gt(lit(8.0)))
+                .then(lit("Excelente"))
+                .when(col("Score").gt(lit(6.5)))
+                .then(lit("Bom"))
+                .otherwise(lit("Regular"))
+                .alias("Categorias"), // Criar uma nova coluna "Categorias"
+        )
+        .collect()?; // ?  para extrair o resultado
+
+    let df = df
+        .lazy()
+        .rename(["MAL_ID", "Name"], ["ID", "Título"], false)
+        .collect()?;
+    Ok(df)
 }
